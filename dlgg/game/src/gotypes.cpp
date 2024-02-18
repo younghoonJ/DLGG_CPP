@@ -16,26 +16,6 @@ isBlack(const Player &color) {
     return color == Player::Black;
 }
 
-std::array<Point, 4>
-Point::neighbors() const {
-    return {Point{static_cast<int16_t>(row - 1), col},
-            Point{static_cast<int16_t>(row + 1), col},
-            Point{row, static_cast<int16_t>(col - 1)},
-            Point{row, static_cast<int16_t>(col + 1)}};
-}
-
-std::array<Point, 4>
-Point::corners() const {
-    return {
-        Point{static_cast<int16_t>(row - 1), static_cast<int16_t>(col - 1)},
-        Point{static_cast<int16_t>(row - 1), static_cast<int16_t>(col + 1)},
-        Point{static_cast<int16_t>(row + 1), static_cast<int16_t>(col - 1)},
-        Point{static_cast<int16_t>(row + 1), static_cast<int16_t>(col + 1)},
-    };
-}
-
-Point::Point(int16_t row, int16_t col) : row(row), col(col) {}
-
 std::ostream &
 operator<<(std::ostream &os, const Point &point) {
     os << '(' << COLS[point.col] << ',' << point.row << ')';

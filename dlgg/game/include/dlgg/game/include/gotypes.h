@@ -26,10 +26,9 @@ public:
     int16_t col = 0;
 
     Point() = default;
-    Point(int16_t row, int16_t col);
 
-    [[nodiscard]] std::array<Point, 4> neighbors() const;
-    [[nodiscard]] std::array<Point, 4> corners() const;
+    constexpr Point(int16_t row, int16_t col) : row(row), col(col) {}
+
     friend std::ostream &operator<<(std::ostream &os, const Point &point);
 };
 

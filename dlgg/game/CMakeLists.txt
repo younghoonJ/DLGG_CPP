@@ -5,10 +5,12 @@ add_library(${LIBNAME} STATIC
         include/dlgg/game/include/gotypes.h
         src/gostring.cpp
         include/dlgg/game/include/gostring.h
-        src/goboard.cpp
         include/dlgg/game/include/goboard.h
-        src/gamestate.cpp
+        src/goboard_impl.cpp
+        include/dlgg/game/include/goboard_impl.h
         include/dlgg/game/include/gamestate.h
+        src/gamestate_impl.cpp
+        include/dlgg/game/include/gamestate_impl.h
 )
 
 add_library(${PACKAGE_NAME}::${LIBNAME} ALIAS ${LIBNAME})

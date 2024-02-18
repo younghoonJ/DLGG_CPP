@@ -4,8 +4,8 @@
 
 #ifndef DLGG_CPP_DLGG_GAME_INCLUDE_DLGG_INCLUDE_GAME_GOBOARD_H
 #define DLGG_CPP_DLGG_GAME_INCLUDE_DLGG_INCLUDE_GAME_GOBOARD_H
+
 #include <algorithm>
-#include <cstddef>
 #include <memory>
 #include <ostream>
 #include <unordered_map>
@@ -15,6 +15,29 @@
 #include "zobrist.h"
 
 namespace dlgg::game::goboard {
+struct PreComputeCache {
+    constexpr PreComputeCache() {
+        for (int16_t row = 1; row < 20; ++row) {
+            for (int16_t col = 1; col < 20; ++col) {
+                neighbors[row][col] = {gotypes::Point{int16_t(row - 1), col},
+                                       gotypes::Point{int16_t(row + 1), col},
+                                       gotypes::Point{row, int16_t(col - 1)},
+                                       gotypes::Point{row, int16_t(col + 1)}};
+                corners[row][col]   = {
+                    gotypes::Point{int16_t(row - 1), int16_t(col - 1)},
+                    gotypes::Point{int16_t(row - 1), int16_t(col + 1)},
+                    gotypes::Point{int16_t(row + 1), int16_t(col - 1)},
+                    gotypes::Point{int16_t(row + 1), int16_t(col + 1)},
+                };
+            }
+        }
+    };
+
+    std::array<gotypes::Point, 4> corners[20][20];
+    std::array<gotypes::Point, 4> neighbors[20][20];
+};
+
+constexpr auto PointCache = PreComputeCache();
 
 // ABC Board
 template<class Derived>
@@ -24,6 +47,16 @@ protected:
         grid;
     //  we wrap gostring ptr to keep address of strings unchanged.
     std::vector<std::unique_ptr<gostring::GoString>> strings_;
+
+    void dropString_(const gostring::GoString &goString) {
+        auto it = std::find_if(
+            strings_.begin(), strings_.end(),
+            [goString](const std::unique_ptr<gostring::GoString> &ptr) {
+                return *ptr == goString;
+            });
+        std::swap(*it, strings_.back());
+        strings_.pop_back();
+    }
 
 public:
     std::size_t num_rows;
@@ -49,7 +82,8 @@ public:
         return static_cast<const Derived *>(this)->deepCopyImpl();
     }
 
-    friend std::ostream &operator<<(std::ostream &os, const Board &board) {
+    friend std::ostream &operator<<(std::ostream &os,
+                                    const Board<Derived> &board) {
         for (auto row = board.num_rows; row > 0; --row) {
             os << (row <= board.num_rows ? " " : "") << std::to_string(row)
                << " ";
@@ -97,13 +131,13 @@ public:
     bool isPointAnEye(const game::gotypes::Point &point,
                       game::gotypes::Player color) const {
         if (get(point) != game::gostring::NullString) return false;
-        for (auto &nbr : point.neighbors()) {
+        for (auto &nbr : neighbors(point)) {
             if (getColor(nbr) != color) return false;
         }
 
         auto friendly_conners  = 0;
         auto off_board_corners = 0;
-        for (const auto &corner : point.corners()) {
+        for (const auto &corner : corners(point)) {
             if (isOnGrid(corner)) {
                 if (getColor(corner) == color) friendly_conners += 1;
             } else {
@@ -115,44 +149,18 @@ public:
         return friendly_conners >= 3;
     }
 
+    // crtp
     void placeStone(gotypes::Player player, const gotypes::Point &point) {
         static_cast<Derived *>(this)->placeStoneImpl(player, point);
     }
-};
 
-class BoardZob : public Board<BoardZob> {
-    zobrist::ZobHash_t hash_ = zobrist::ZobHashEmptyBoard;
+    std::array<gotypes::Point, 4> neighbors(const gotypes::Point &point) const {
+        return PointCache.neighbors[point.row][point.col];
+    }
 
-public:
-    ~BoardZob() override = default;
-    BoardZob(size_t numRows, size_t numCols);
-    BoardZob(const BoardZob &other);
-
-private:
-    void removeStringFromBoard(const gostring::GoString &goString);
-    void removeStringFromStrings(const gostring::GoString &goString);
-
-private:
-    friend class Board<BoardZob>;
-    void placeStoneImpl(gotypes::Player player, const gotypes::Point &point);
-    BoardZob deepCopyImpl() const;
-};
-
-class BoardNaive : public Board<BoardNaive> {
-public:
-    ~BoardNaive() override = default;
-    BoardNaive(size_t numRows, size_t numCols);
-
-    BoardNaive(const BoardNaive &other) : Board<BoardNaive>(other) {}
-
-private:
-    void removeStringFromStrings(const gostring::GoString &goString);
-    void removeStringFromBoard(const gostring::GoString &goString);
-
-private:
-    friend class Board<BoardNaive>;
-    void placeStoneImpl(gotypes::Player player, const gotypes::Point &point);
-    BoardNaive deepCopyImpl() const;
+    std::array<gotypes::Point, 4> corners(const gotypes::Point &point) const {
+        return PointCache.corners[point.row][point.col];
+    }
 };
 
 

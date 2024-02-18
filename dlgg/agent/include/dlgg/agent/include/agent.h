@@ -5,7 +5,6 @@
 #ifndef DLGG_CPP_DLGG_AGENT_INCLUDE_DLGG_INCLUDE_AGENT_AGENT_H
 #define DLGG_CPP_DLGG_AGENT_INCLUDE_DLGG_INCLUDE_AGENT_AGENT_H
 #include "dlgg/game/include/gamestate.h"
-#include "dlgg/game/include/goboard.h"
 #include "dlgg/game/include/gotypes.h"
 
 namespace dlgg::agent {
@@ -13,9 +12,7 @@ namespace dlgg::agent {
 template<class Derived, class GameStateImpl>
 class Agent {
 public:
-    game::gotypes::Move selectMove(
-        const game::gamestate::GameState<
-            GameStateImpl, game::goboard::BoardNaive> &gameState) const {
+    game::gotypes::Move selectMove(const GameStateImpl &gameState) const {
         return (static_cast<const Derived *>(this))->seleceMoveImpl(gameState);
     };
 };

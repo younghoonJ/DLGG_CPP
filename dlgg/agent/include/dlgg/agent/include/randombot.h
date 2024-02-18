@@ -27,9 +27,7 @@ public:
         }
     }
 
-    game::gotypes::Move seleceMoveImpl(
-        const game::gamestate::GameState<
-            GameStateImpl, game::goboard::BoardNaive> &gameState) const {
+    game::gotypes::Move seleceMoveImpl(const GameStateImpl &gameState) const {
         std::vector<game::gotypes::Point> candidates;
         for (const auto &candidate : all_points) {
             if (gameState.isValidMove(game::gotypes::Move::play(candidate)) and
