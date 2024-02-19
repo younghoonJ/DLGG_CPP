@@ -40,7 +40,7 @@ BoardNaive::placeStoneImpl(gotypes::Player player,
     std::vector<gostring::GoString *> adjacent_opposite_color;
     std::unordered_set<gotypes::Point, gotypes::PointHash> liberties;
     for (const auto &neighbor : neighbors(point)) {
-        if (not isOnGrid(point)) continue;
+        if (not isOnGrid(neighbor)) continue;
         auto &neighbor_string = get(neighbor);
         if (neighbor_string == gostring::NullString) {
             liberties.emplace(neighbor);
@@ -102,7 +102,7 @@ BoardZob::placeStoneImpl(gotypes::Player player, const gotypes::Point &point) {
     std::vector<gostring::GoString *> adjacent_opposite_color;
     std::unordered_set<gotypes::Point, gotypes::PointHash> liberties;
     for (const auto &neighbor : neighbors(point)) {
-        if (not isOnGrid(point)) continue;
+        if (not isOnGrid(neighbor)) continue;
         auto &neighbor_string = get(neighbor);
         if (neighbor_string == gostring::NullString) {
             liberties.emplace(neighbor);
