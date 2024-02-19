@@ -15,29 +15,7 @@
 #include "zobrist.h"
 
 namespace dlgg::game::goboard {
-struct PreComputeCache {
-    constexpr PreComputeCache() {
-        for (int16_t row = 1; row < 20; ++row) {
-            for (int16_t col = 1; col < 20; ++col) {
-                neighbors[row][col] = {gotypes::Point{int16_t(row - 1), col},
-                                       gotypes::Point{int16_t(row + 1), col},
-                                       gotypes::Point{row, int16_t(col - 1)},
-                                       gotypes::Point{row, int16_t(col + 1)}};
-                corners[row][col]   = {
-                    gotypes::Point{int16_t(row - 1), int16_t(col - 1)},
-                    gotypes::Point{int16_t(row - 1), int16_t(col + 1)},
-                    gotypes::Point{int16_t(row + 1), int16_t(col - 1)},
-                    gotypes::Point{int16_t(row + 1), int16_t(col + 1)},
-                };
-            }
-        }
-    };
 
-    std::array<gotypes::Point, 4> corners[20][20];
-    std::array<gotypes::Point, 4> neighbors[20][20];
-};
-
-constexpr auto PointCache = PreComputeCache();
 
 // ABC Board
 template<class Derived>
@@ -155,11 +133,11 @@ public:
     }
 
     std::array<gotypes::Point, 4> neighbors(const gotypes::Point &point) const {
-        return PointCache.neighbors[point.row][point.col];
+        return gotypes::PointCache.neighbors[point.row][point.col];
     }
 
     std::array<gotypes::Point, 4> corners(const gotypes::Point &point) const {
-        return PointCache.corners[point.row][point.col];
+        return gotypes::PointCache.corners[point.row][point.col];
     }
 };
 

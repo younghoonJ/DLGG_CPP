@@ -9,6 +9,7 @@
 #include <cstdint>
 #include <ostream>
 #include <variant>
+#include <vector>
 
 namespace dlgg::game::gotypes {
 constexpr char COLS[22] = "%ABCDEFGHIJKLMNOPQRST";
@@ -45,6 +46,33 @@ struct PointHash {
                std::hash<int16_t>{}(point.col);
     }
 };
+
+struct PreComputeCache {
+    constexpr PreComputeCache() {
+        for (int16_t row = 1; row < 20; ++row) {
+            for (int16_t col = 1; col < 20; ++col) {
+                neighbors[row][col] = {gotypes::Point{int16_t(row - 1), col},
+                                       gotypes::Point{int16_t(row + 1), col},
+                                       gotypes::Point{row, int16_t(col - 1)},
+                                       gotypes::Point{row, int16_t(col + 1)}};
+                corners[row][col]   = {
+                    gotypes::Point{int16_t(row - 1), int16_t(col - 1)},
+                    gotypes::Point{int16_t(row - 1), int16_t(col + 1)},
+                    gotypes::Point{int16_t(row + 1), int16_t(col - 1)},
+                    gotypes::Point{int16_t(row + 1), int16_t(col + 1)},
+                };
+            }
+        }
+    };
+
+    std::array<gotypes::Point, 4> corners[20][20];
+    std::array<gotypes::Point, 4> neighbors[20][20];
+};
+
+constexpr auto PointCache = PreComputeCache();
+
+std::vector<Point>
+getAllPoints(size_t board_size);
 
 class Move {
 public:

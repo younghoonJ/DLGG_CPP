@@ -4,6 +4,7 @@ add_library(${LIBNAME} STATIC
         include/dlgg/agent/include/agent.h
         src/agent.cpp
         include/dlgg/agent/include/randombot.h
+        include/dlgg/agent/include/minmaxbot.h
 )
 
 add_library(${PACKAGE_NAME}::${LIBNAME} ALIAS ${LIBNAME})

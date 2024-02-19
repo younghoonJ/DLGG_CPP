@@ -16,29 +16,31 @@ template<class GameStateImpl>
 class RandomBot : public Agent<RandomBot<GameStateImpl>, GameStateImpl> {
     std::mt19937 *rng;
 
-    std::vector<game::gotypes::Point> all_points;
+    std::vector<game::gotypes::Point> *points_cache{};
 
 public:
-    RandomBot(size_t board_size, std::mt19937 *rng) : rng(rng) {
-        for (size_t r = 1; r < board_size + 1; ++r) {
-            for (size_t c = 1; c < board_size + 1; ++c) {
-                all_points.emplace_back(r, c);
-            }
-        }
+    explicit RandomBot(std::mt19937 *rng) : rng(rng) {}
+
+    void setPointCache(std::vector<game::gotypes::Point> *points_cache_) {
+        points_cache = points_cache_;
     }
 
     game::gotypes::Move seleceMoveImpl(const GameStateImpl &gameState) const {
-        std::vector<game::gotypes::Point> candidates;
-        for (const auto &candidate : all_points) {
+        std::vector<int> candidates;
+        for (auto idx = 0; idx < points_cache->size(); ++idx) {
+            const auto &candidate = points_cache->at(idx);
             if (gameState.isValidMove(game::gotypes::Move::play(candidate)) and
                 not gameState.board().isPointAnEye(candidate,
                                                    gameState.nextPlayer())) {
-                candidates.push_back(candidate);
+                candidates.push_back(idx);
             }
         }
         if (candidates.empty()) return game::gotypes::Move::pass();
-        return game::gotypes::Move::play(
-            candidates[(*rng)() % candidates.size()]);
+        auto sel_idx = candidates[(*rng)() % candidates.size()];
+        std::swap(points_cache->at(sel_idx), points_cache->back());
+        auto pt = points_cache->back();
+        points_cache->pop_back();
+        return game::gotypes::Move::play(pt);
     }
 };
 

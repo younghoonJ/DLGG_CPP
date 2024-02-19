@@ -123,4 +123,15 @@ operator<<(std::ostream &os, const Move &move) {
     os << "kind: " << move.kind << " point: " << move.point;
     return os;
 }
+
+std::vector<Point>
+getAllPoints(size_t board_size) {
+    std::vector<Point> vec;
+    for (size_t r = 1; r < board_size + 1; ++r) {
+        for (size_t c = 1; c < board_size + 1; ++c) {
+            vec.emplace_back(r, c);
+        }
+    }
+    return vec;
+}
 }  // namespace dlgg::game::gotypes
